@@ -170,8 +170,10 @@ class _ExpenseFormState extends State<_ExpenseForm> {
     if (!mounted) return;
     setState(() => _busy = false);
     if (ok == true) {
+      // Show the toast on the page underneath before this sheet's context goes away.
+      final messenger = ScaffoldMessenger.maybeOf(context);
       Navigator.pop(context);
-      BToast.show(context, widget.existing == null ? 'Expense added' : 'Expense updated');
+      messenger?.showSnackBar(SnackBar(content: Text(widget.existing == null ? 'Expense added' : 'Expense updated')));
     }
   }
 

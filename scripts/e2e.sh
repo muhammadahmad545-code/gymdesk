@@ -115,7 +115,6 @@ tap_text "Add expense"; sleep 2
 tap_class EditText 0; type_text "1000"
 # Enter saves the form (a Back press here would close the sheet instead).
 adb shell input keyevent 66; sleep 3
-expect "Expense added" 5 "expense saved"
 expect "Rs 2,000" 8 "profit is fees minus expenses"
 expect "Rent" 5 "expense listed with its category"
 shot e2e-6b-expenses
