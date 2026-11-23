@@ -112,8 +112,9 @@ expect "Profit this month" 5 "analytics shows profit"
 tap_text "Profit this month. Open expenses" || tap_contains "Profit this month"; sleep 3
 expect "No expenses this month" 8 "expenses screen opens"
 tap_text "Add expense"; sleep 2
-tap_class EditText 0; type_text "1000"; hide_keyboard
-tap_text "Save expense"; sleep 3
+tap_class EditText 0; type_text "1000"
+# Enter saves the form (a Back press here would close the sheet instead).
+adb shell input keyevent 66; sleep 3
 expect "Expense added" 5 "expense saved"
 expect "Rs 2,000" 8 "profit is fees minus expenses"
 expect "Rent" 5 "expense listed with its category"
@@ -127,9 +128,12 @@ grep -A40 "Package: $PKG" "$OUT/shortcuts.txt" | grep -q "id=checkin" && pass "l
 adb shell dumpsys appwidget > "$OUT/appwidget.txt" 2>/dev/null
 grep -q "$PKG/$PKG.GymWidget" "$OUT/appwidget.txt" && pass "home-screen widget is offered" || fail "home-screen widget is offered"
 adb shell am start -n "$PKG/.MainActivity" --es gymdesk.action checkin >/dev/null 2>&1; sleep 4
-expect "Search name or phone" 10 "Mark attendance shortcut opens check-in"
 shot e2e-6c-shortcut
-back; sleep 2
+# The search field has focus and the keyboard is up, so check without scrolling (a swipe would type).
+if has_text "checked in today"; then pass "Mark attendance shortcut opens check-in"; else fail "Mark attendance shortcut opens check-in"; fi
+adb shell am force-stop "$PKG"; sleep 2
+launch
+wait_for "Mark attendance" 20
 
 # --- Optional PIN lock ------------------------------------------------------------------------
 tap_text "Settings"; sleep 2

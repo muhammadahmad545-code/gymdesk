@@ -211,6 +211,8 @@ class _ExpenseFormState extends State<_ExpenseForm> {
         TextField(
           controller: _amount,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _save(),
           decoration: InputDecoration(labelText: 'Amount', prefixText: '${context.app.gym.value.currency} '),
         ),
         const SizedBox(height: Gap.md),
