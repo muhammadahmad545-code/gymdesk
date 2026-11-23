@@ -175,7 +175,7 @@ class LockScreen extends StatelessWidget {
     final ok = await bConfirm(
       context,
       title: 'Forgot your PIN?',
-      message: 'The only way back in is to erase all Mr. Gym data on this phone. '
+      message: 'The only way back in is to erase all Gymdesk data on this phone. '
           'You can then restore an encrypted backup if you made one.',
       confirmLabel: 'Erase all data',
       danger: true,

@@ -70,7 +70,7 @@ class GymRepository {
     final rows = await _db.select(_db.kv).get();
     final map = {for (final r in rows) r.key: r.value};
     return GymInfo(
-      name: map[kGymName] ?? 'Mr. Gym',
+      name: map[kGymName] ?? 'My gym',
       currency: map[kCurrency] ?? 'Rs',
       countryCode: map[kCountryCode] ?? '92',
     );
@@ -412,6 +412,43 @@ class GymRepository {
       ..groupBy([_db.checkins.day]);
     return {for (final r in await q.get()) r.read(_db.checkins.day)!: r.read(c) ?? 0};
   }
+
+  // ---------------------------------------------------------------- expenses
+
+  static const expenseCategories = ['Rent', 'Electricity', 'Salaries', 'Equipment', 'Maintenance', 'Supplies', 'Other'];
+
+  Future<void> saveExpense({String? id, required String category, required double amount, required DateTime day, String note = ''}) async {
+    if (amount <= 0) throw const AppError('Enter an amount above zero.');
+    final cat = category.trim().isEmpty ? 'Other' : category.trim();
+    if (id == null) {
+      await _db.into(_db.expenses).insert(ExpensesCompanion.insert(
+            id: newId(),
+            category: cat,
+            amount: amount,
+            day: ymd(day),
+            note: Value(note.trim()),
+            createdAt: DateTime.now(),
+          ));
+    } else {
+      await (_db.update(_db.expenses)..where((t) => t.id.equals(id))).write(ExpensesCompanion(
+        category: Value(cat),
+        amount: Value(amount),
+        day: Value(ymd(day)),
+        note: Value(note.trim()),
+      ));
+    }
+  }
+
+  Future<void> deleteExpense(String id) => (_db.delete(_db.expenses)..where((t) => t.id.equals(id))).go();
+
+  /// Expenses with day in [from, to] (calendar days), newest first.
+  Future<List<Expense>> expensesBetween(DateTime from, DateTime to) => (_db.select(_db.expenses)
+        ..where((t) => t.day.isBetweenValues(ymd(from), ymd(to)))
+        ..orderBy([(t) => OrderingTerm.desc(t.day), (t) => OrderingTerm.desc(t.createdAt)]))
+      .get();
+
+  Future<List<Expense>> allExpenses() =>
+      (_db.select(_db.expenses)..orderBy([(t) => OrderingTerm.desc(t.day), (t) => OrderingTerm.desc(t.createdAt)])).get();
 
   /// Wipes all gym data (used by "Erase all data").
   Future<void> eraseAll() => _db.transaction(() async {

@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mr_gym/app.dart';
-import 'package:mr_gym/app_services.dart';
-import 'package:mr_gym/data/db.dart';
-import 'package:mr_gym/data/gym_repository.dart';
-import 'package:mr_gym/services/backup_service.dart';
-import 'package:mr_gym/services/prefs.dart';
-import 'package:mr_gym/services/reminders.dart';
+import 'package:gymdesk/app.dart';
+import 'package:gymdesk/app_services.dart';
+import 'package:gymdesk/data/db.dart';
+import 'package:gymdesk/data/gym_repository.dart';
+import 'package:gymdesk/services/backup_service.dart';
+import 'package:gymdesk/services/prefs.dart';
+import 'package:gymdesk/services/reminders.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<AppServices> _services() async {
@@ -32,7 +32,7 @@ void main() {
   testWidgets('first launch shows the introduction, then gym setup', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final services = await tester.runAsync(_services);
-    await tester.pumpWidget(MrGymApp(boot: () async => services!));
+    await tester.pumpWidget(GymdeskApp(boot: () async => services!));
     await pumpUntil(tester, find.text('Skip'));
     expect(find.text('Skip'), findsOneWidget);
     expect(find.text('Your gym on your phone'), findsOneWidget);
@@ -48,7 +48,7 @@ void main() {
   testWidgets('the app lock screen shows when a PIN is set', (tester) async {
     SharedPreferences.setMockInitialValues({'onboarded': true, 'pin.hash': 'x', 'pin.salt': 'y'});
     final services = await tester.runAsync(_services);
-    await tester.pumpWidget(MrGymApp(boot: () async => services!));
+    await tester.pumpWidget(GymdeskApp(boot: () async => services!));
     await pumpUntil(tester, find.text('Enter PIN'));
     expect(find.text('Enter PIN'), findsOneWidget);
     expect(find.text('Unlock'), findsOneWidget);

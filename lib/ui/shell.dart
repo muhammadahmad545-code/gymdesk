@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:basalt/basalt.dart';
 import 'package:flutter/material.dart';
 
 import '../app_services.dart';
+import '../services/quick_access.dart';
 import 'analytics_screen.dart';
+import 'check_in_screen.dart';
 import 'home_screen.dart';
+import 'member_editor_screen.dart';
 import 'members_screen.dart';
 import 'settings_screen.dart';
 
@@ -16,6 +21,39 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   bool _askedPermission = false;
+  StreamSubscription<String>? _actions;
+
+  @override
+  void initState() {
+    super.initState();
+    // Launcher shortcuts and the widget's Check in button.
+    _actions = QuickAccess.actions.listen((a) {
+      QuickAccess.consumed();
+      _open(a);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final a = await QuickAccess.takeAction();
+      if (a != null) _open(a);
+    });
+  }
+
+  @override
+  void dispose() {
+    _actions?.cancel();
+    super.dispose();
+  }
+
+  void _open(String action) {
+    if (!mounted) return;
+    final nav = Navigator.of(context);
+    nav.popUntil((r) => r.isFirst);
+    switch (action) {
+      case 'checkin':
+        nav.push(MaterialPageRoute<void>(builder: (_) => const CheckInScreen()));
+      case 'add-member':
+        nav.push(MaterialPageRoute<void>(builder: (_) => const MemberEditorScreen()));
+    }
+  }
 
   @override
   void didChangeDependencies() {

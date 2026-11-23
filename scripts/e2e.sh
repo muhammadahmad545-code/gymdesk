@@ -1,4 +1,4 @@
-# Sourced by smoke.sh. End-to-end checks of Mr. Gym's main flows on the emulator.
+# Sourced by smoke.sh. End-to-end checks of Gymdesk's main flows on the emulator.
 # Some keyboards ignore ESC; fall back to Back while the keyboard is still showing.
 hide_keyboard() {
   adb shell input keyevent 111; sleep 1
@@ -106,6 +106,30 @@ back; sleep 1
 tap_text "Analytics"; sleep 3
 expect "Collected Rs 3,000" 8 "analytics counts this month's revenue"
 shot e2e-6-analytics
+
+# --- Expenses and profit ----------------------------------------------------------------------
+expect "Profit this month" 5 "analytics shows profit"
+tap_text "Profit this month. Open expenses" || tap_contains "Profit this month"; sleep 3
+expect "No expenses this month" 8 "expenses screen opens"
+tap_text "Add expense"; sleep 2
+tap_class EditText 0; type_text "1000"; hide_keyboard
+tap_text "Save expense"; sleep 3
+expect "Expense added" 5 "expense saved"
+expect "Rs 2,000" 8 "profit is fees minus expenses"
+expect "Rent" 5 "expense listed with its category"
+shot e2e-6b-expenses
+back; sleep 2
+expect "Rs 2,000" 8 "analytics profit includes the expense"
+
+# --- Quick access: launcher shortcuts and the widget ------------------------------------------
+adb shell dumpsys shortcut > "$OUT/shortcuts.txt" 2>/dev/null
+grep -A40 "Package: $PKG" "$OUT/shortcuts.txt" | grep -q "id=checkin" && pass "launcher shortcuts installed" || fail "launcher shortcuts installed"
+adb shell dumpsys appwidget > "$OUT/appwidget.txt" 2>/dev/null
+grep -q "$PKG/$PKG.GymWidget" "$OUT/appwidget.txt" && pass "home-screen widget is offered" || fail "home-screen widget is offered"
+adb shell am start -n "$PKG/.MainActivity" --es gymdesk.action checkin >/dev/null 2>&1; sleep 4
+expect "Search name or phone" 10 "Mark attendance shortcut opens check-in"
+shot e2e-6c-shortcut
+back; sleep 2
 
 # --- Optional PIN lock ------------------------------------------------------------------------
 tap_text "Settings"; sleep 2

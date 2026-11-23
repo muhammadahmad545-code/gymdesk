@@ -1,4 +1,4 @@
-# Mr. Gym build pipeline (Basalt Flutter template).
+# Gymdesk build pipeline (Basalt Flutter template).
 name: Build
 
 on:
@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APP: mrgym
+  APP: gymdesk
   FLUTTER_VERSION: 3.47.9
 
 jobs:

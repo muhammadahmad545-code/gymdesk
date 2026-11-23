@@ -11,17 +11,17 @@ import 'ui/shell.dart';
 
 const appAccent = BasaltAccent.lime;
 
-class MrGymApp extends StatefulWidget {
-  const MrGymApp({super.key, this.boot});
+class GymdeskApp extends StatefulWidget {
+  const GymdeskApp({super.key, this.boot});
 
   /// Builds the services; tests pass an in-memory version.
   final Future<AppServices> Function()? boot;
 
   @override
-  State<MrGymApp> createState() => _MrGymAppState();
+  State<GymdeskApp> createState() => _GymdeskAppState();
 }
 
-class _MrGymAppState extends State<MrGymApp> with WidgetsBindingObserver {
+class _GymdeskAppState extends State<GymdeskApp> with WidgetsBindingObserver {
   AppServices? _services;
   Object? _error;
   final _navigator = GlobalKey<NavigatorState>();
@@ -92,7 +92,7 @@ class _MrGymAppState extends State<MrGymApp> with WidgetsBindingObserver {
       home = const Gate();
     }
     return MaterialApp(
-      title: 'Mr. Gym',
+      title: 'Gymdesk',
       navigatorKey: _navigator,
       debugShowCheckedModeBanner: false,
       theme: basaltTheme(Brightness.light, appAccent),
@@ -117,7 +117,7 @@ class _BootError extends StatelessWidget {
         child: Center(
           child: BEmptyState(
             icon: Icons.error_outline_rounded,
-            title: 'Mr. Gym could not start',
+            title: 'Gymdesk could not start',
             message: errorText(error),
             actionLabel: 'Try again',
             onAction: onRetry,
@@ -178,7 +178,7 @@ class _GateState extends State<Gate> {
         if (app.lock.locked) return const LockScreen();
         if (!app.prefs.onboarded) {
           return BOnboarding(
-            appName: 'Mr. Gym',
+            appName: 'Gymdesk',
             pages: const [
               BOnboardingPage(
                 icon: Icons.fitness_center_rounded,

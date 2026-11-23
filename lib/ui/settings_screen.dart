@@ -6,6 +6,7 @@ import '../app_services.dart';
 import '../data/gym_repository.dart';
 import 'backup_screen.dart';
 import 'common.dart';
+import 'expenses_screen.dart';
 import 'pin_screens.dart';
 import 'plans_screen.dart';
 
@@ -96,12 +97,40 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
             BGroup(
+              title: 'Money',
+              children: [
+                BListRow(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'Expenses',
+                  subtitle: 'Rent, salaries, electricity… and the profit left over',
+                  chevron: true,
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ExpensesScreen())),
+                ),
+              ],
+            ),
+            const BGroup(
+              title: 'Quick access',
+              children: [
+                BListRow(
+                  icon: Icons.widgets_outlined,
+                  title: 'Home-screen widget',
+                  subtitle: 'Long-press your home screen → Widgets → Gymdesk. Shows today\'s check-ins, fees due and overdue, with a Check in button.',
+                  maxSubtitleLines: 3,
+                ),
+                BListRow(
+                  icon: Icons.apps_rounded,
+                  title: 'Shortcuts on the app icon',
+                  subtitle: 'Long-press Gymdesk for Mark attendance and Add member.',
+                ),
+              ],
+            ),
+            BGroup(
               title: 'Security',
               children: [
                 BListRow(
                   icon: Icons.lock_outline_rounded,
                   title: 'App lock',
-                  subtitle: app.lock.enabled ? 'A PIN is needed to open Mr. Gym' : 'Off',
+                  subtitle: app.lock.enabled ? 'A PIN is needed to open Gymdesk' : 'Off',
                   onTap: () => _toggleLock(context, !app.lock.enabled),
                   trailing: Switch(value: app.lock.enabled, onChanged: (v) => _toggleLock(context, v)),
                 ),
@@ -182,7 +211,7 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: Gap.xl),
             Center(
               child: Text(
-                'Mr. Gym · works offline · your data stays on this phone',
+                'Gymdesk · works offline · your data stays on this phone',
                 textAlign: TextAlign.center,
                 style: BasaltType.caption.copyWith(color: p.textFaint),
               ),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mr_gym/data/db.dart';
-import 'package:mr_gym/domain/dates.dart';
-import 'package:mr_gym/domain/member_view.dart';
-import 'package:mr_gym/services/reminders.dart';
+import 'package:gymdesk/data/db.dart';
+import 'package:gymdesk/domain/dates.dart';
+import 'package:gymdesk/domain/member_view.dart';
+import 'package:gymdesk/services/reminders.dart';
 
 MemberView _member(String name, DateTime due, DateTime now, {String status = 'active', String? frozen}) => MemberView(
       Member(

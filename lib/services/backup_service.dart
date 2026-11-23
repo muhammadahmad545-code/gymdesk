@@ -49,7 +49,7 @@ class BackupService {
       final package = await GymCrypto.encryptAsync(plain, password);
       package['app'] = 'dev.basalt.mrgym';
       package['schemaVersion'] = repo.db.schemaVersion;
-      final name = 'mr-gym-${_stamp(stamp)}.$extension';
+      final name = 'gymdesk-${_stamp(stamp)}.$extension';
       final out = File(p.join(dir.path, name));
       await out.writeAsString(jsonEncode(package), flush: true);
       await _prune(dir, keep: 5);
@@ -89,10 +89,10 @@ class BackupService {
     try {
       package = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
     } catch (_) {
-      throw const AppError('This is not a Mr. Gym backup file.');
+      throw const AppError('This is not a Gymdesk backup file.');
     }
     if (package['formatVersion']?.toString() != GymCrypto.backupFormatVersion || package['ciphertext'] is! String) {
-      throw const AppError('This backup was made by an incompatible version of Mr. Gym.');
+      throw const AppError('This backup was made by an incompatible version of Gymdesk.');
     }
     final Uint8List plain;
     try {
@@ -105,7 +105,7 @@ class BackupService {
       throw const AppError('The backup file is damaged.');
     }
     if (plain.length < 100 || ascii.decode(plain.sublist(0, 15), allowInvalid: true) != 'SQLite format 3') {
-      throw const AppError('The backup does not contain a Mr. Gym database.');
+      throw const AppError('The backup does not contain a Gymdesk database.');
     }
 
     final live = File(databasePath);

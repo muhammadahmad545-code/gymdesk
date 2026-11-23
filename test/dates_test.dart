@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mr_gym/domain/dates.dart';
+import 'package:gymdesk/domain/dates.dart';
 
 void main() {
   test('addMonths keeps the day or clamps to the end of the month', () {

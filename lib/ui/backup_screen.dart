@@ -24,7 +24,7 @@ Future<void> createBackupFlow(BuildContext context) async {
   await attempt(
     context,
     () => SharePlus.instance.share(
-      ShareParams(files: [XFile(file.path, mimeType: 'application/octet-stream')], subject: 'Mr. Gym backup'),
+      ShareParams(files: [XFile(file.path, mimeType: 'application/octet-stream')], subject: 'Gymdesk backup'),
     ),
   );
 }
@@ -44,7 +44,7 @@ Future<void> restoreBackupFlow(BuildContext context) async {
   final ok = await bConfirm(
     context,
     title: 'Replace data with this backup?',
-    message: 'Everything currently in Mr. Gym on this phone is replaced by the backup.',
+    message: 'Everything currently in Gymdesk on this phone is replaced by the backup.',
     confirmLabel: 'Continue',
     danger: true,
   );

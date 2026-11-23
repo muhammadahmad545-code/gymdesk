@@ -1,8 +1,8 @@
-name: mr_gym
-description: "Mr. Gym: offline gym management for one gym."
+name: gymdesk
+description: "Gymdesk: offline gym management."
 publish_to: 'none'
 
-version: 2.0.0+20
+version: 2.1.0+21
 
 environment:
   sdk: ^3.12.2

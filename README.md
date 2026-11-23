@@ -1,10 +1,19 @@
-# Mr. Gym
+# Gymdesk
+
+*Renamed from **Mr. Gym** in 2.1.0. Your gym's own name is set inside the app.*
 
 Offline gym management for one gym, on one Android phone. Part of the Basalt app suite.
 
 Everything lives on the phone: no account, no server and no internet needed, except to open WhatsApp
 or to download an app update from GitHub.
 
+
+## What's new in 2.1
+
+- **New name:** Mr. Gym is now **Gymdesk**, a name that fits any gym. Your own gym's name is still set inside the app and shown on every screen.
+- **Expenses and profit:** log rent, electricity, salaries, equipment, maintenance and supplies. Analytics shows *profit this month* (fees collected minus expenses), with month-by-month browsing and a CSV export.
+- **Home-screen widget:** today's check-ins, fees due this week and overdue, money collected this month, and a **Check in** button.
+- **Shortcuts on the app icon:** long-press for *Mark attendance* and *Add member*.
 ## Features
 
 - **Dashboard**: today's check-ins, fees due this week, overdue fees and revenue this month, with

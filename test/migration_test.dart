@@ -1,8 +1,8 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mr_gym/data/db.dart';
-import 'package:mr_gym/data/gym_repository.dart';
-import 'package:mr_gym/domain/dates.dart';
+import 'package:gymdesk/data/db.dart';
+import 'package:gymdesk/data/gym_repository.dart';
+import 'package:gymdesk/domain/dates.dart';
 
 /// A trimmed copy of the Mr. Gym 1.x (schema 4) tables that hold data worth keeping.
 const _v4 = [

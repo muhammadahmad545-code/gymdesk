@@ -3,11 +3,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mr_gym/data/db.dart';
-import 'package:mr_gym/data/gym_repository.dart';
-import 'package:mr_gym/domain/dates.dart';
-import 'package:mr_gym/services/backup_service.dart';
-import 'package:mr_gym/services/crypto.dart';
+import 'package:gymdesk/data/db.dart';
+import 'package:gymdesk/data/gym_repository.dart';
+import 'package:gymdesk/domain/dates.dart';
+import 'package:gymdesk/services/backup_service.dart';
+import 'package:gymdesk/services/crypto.dart';
 import 'package:path/path.dart' as p;
 
 void main() {

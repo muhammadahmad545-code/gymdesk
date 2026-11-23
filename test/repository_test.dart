@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mr_gym/data/db.dart';
-import 'package:mr_gym/data/gym_repository.dart';
-import 'package:mr_gym/domain/dates.dart';
-import 'package:mr_gym/domain/member_view.dart';
+import 'package:gymdesk/data/db.dart';
+import 'package:gymdesk/data/gym_repository.dart';
+import 'package:gymdesk/domain/dates.dart';
+import 'package:gymdesk/domain/member_view.dart';
 
 void main() {
   late AppDatabase db;
@@ -167,5 +167,18 @@ void main() {
     final m = (await repo.member(id))!;
     expect(m.planId, isNull);
     expect(m.fee, plan.price);
+  });
+
+  test('expenses are saved, listed by month, edited and deleted', () async {
+    await repo.saveExpense(category: 'Rent', amount: 25000, day: DateTime(2026, 11, 1), note: 'November');
+    await repo.saveExpense(category: 'Electricity', amount: 8000, day: DateTime(2026, 10, 20));
+    final nov = await repo.expensesBetween(DateTime(2026, 11, 1), DateTime(2026, 11, 30));
+    expect(nov.map((e) => e.category), ['Rent']);
+    expect(nov.single.amount, 25000);
+    await repo.saveExpense(id: nov.single.id, category: 'Rent', amount: 26000, day: DateTime(2026, 11, 2));
+    expect((await repo.allExpenses()).first.amount, 26000);
+    expect(() => repo.saveExpense(category: 'Rent', amount: 0, day: DateTime(2026, 11, 1)), throwsA(isA<AppError>()));
+    await repo.deleteExpense(nov.single.id);
+    expect((await repo.allExpenses()).map((e) => e.category), ['Electricity']);
   });
 }

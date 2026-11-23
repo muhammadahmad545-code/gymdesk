@@ -9,16 +9,20 @@ import '../domain/dates.dart';
 import '../domain/member_view.dart';
 import '../services/csv_export.dart';
 import 'common.dart';
+import 'expenses_screen.dart';
 import 'live.dart';
 
 class _Stats {
-  _Stats({required this.members, required this.months, required this.revenue, required this.days, required this.visits});
+  _Stats({required this.members, required this.months, required this.revenue, required this.days, required this.visits, required this.spent});
 
   final List<MemberView> members;
 
   /// First day of each of the last 6 months, oldest first, with revenue collected in that month.
   final List<DateTime> months;
   final List<double> revenue;
+
+  /// Expenses in the same months.
+  final List<double> spent;
 
   /// The last 14 days, oldest first, with check-ins per day.
   final List<DateTime> days;
@@ -43,12 +47,18 @@ Future<_Stats> _loadStats(GymRepository repo, DateTime now) async {
           .where((p) => p.paidAt.year == m.year && p.paidAt.month == m.month)
           .fold<double>(0, (sum, p) => sum + p.amount),
   ];
+  final expenses = await repo.expensesBetween(months.first, addDays(DateTime(t.year, t.month + 1), -1));
+  final spent = [
+    for (final m in months)
+      expenses.where((e) => parseYmd(e.day).year == m.year && parseYmd(e.day).month == m.month).fold<double>(0, (sum, e) => sum + e.amount),
+  ];
   final days = [for (var i = 13; i >= 0; i--) addDays(t, -i)];
   final counts = await repo.checkinCountsByDay(days.first, days.last);
   return _Stats(
     members: [for (final m in await repo.members()) MemberView(m, now)],
     months: months,
     revenue: revenue,
+    spent: spent,
     days: days,
     visits: [for (final d in days) counts[ymd(d)] ?? 0],
   );
@@ -101,6 +111,30 @@ class AnalyticsScreen extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: Gap.md),
+            BCard(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ExpensesScreen())),
+              semanticLabel: 'Profit this month. Open expenses',
+              child: Row(
+                children: [
+                  BIconTile(thisMonth - s.spent.last >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                      color: thisMonth - s.spent.last >= 0 ? p.success : p.danger),
+                  const SizedBox(width: Gap.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(thisMonth - s.spent.last >= 0 ? 'Profit this month' : 'Loss this month', style: BasaltType.label.copyWith(color: p.textMuted)),
+                        Text(app.money((thisMonth - s.spent.last).abs()), style: BasaltType.title.copyWith(color: p.text)),
+                        Text('Collected ${app.money(thisMonth)} · spent ${app.money(s.spent.last)}', style: BasaltType.caption.copyWith(color: p.textFaint)),
+                      ],
+                    ),
+                  ),
+                  Text('Expenses', style: BasaltType.label.copyWith(color: p.accent)),
+                  Icon(Icons.chevron_right_rounded, color: p.textFaint),
+                ],
+              ),
+            ),
             const BSectionTitle('Revenue by month'),
             BCard(
               child: s.revenue.every((v) => v == 0)
@@ -152,7 +186,7 @@ class AnalyticsScreen extends StatelessWidget {
                   onTap: () => attempt(context, () async {
                     final plans = {for (final pl in await app.repo.plans()) pl.id: pl.name};
                     final members = [for (final m in await app.repo.members()) MemberView(m, DateTime.now())];
-                    await CsvExport.share('mr-gym-members-${ymd(DateTime.now())}.csv', CsvExport.members(members, plans));
+                    await CsvExport.share('gymdesk-members-${ymd(DateTime.now())}.csv', CsvExport.members(members, plans));
                   }),
                 ),
                 BListRow(
@@ -163,7 +197,16 @@ class AnalyticsScreen extends StatelessWidget {
                   onTap: () => attempt(context, () async {
                     final names = {for (final m in await app.repo.members()) m.id: m.name};
                     final List<Payment> pays = await app.repo.allPayments();
-                    await CsvExport.share('mr-gym-payments-${ymd(DateTime.now())}.csv', CsvExport.payments(pays, names));
+                    await CsvExport.share('gymdesk-payments-${ymd(DateTime.now())}.csv', CsvExport.payments(pays, names));
+                  }),
+                ),
+                BListRow(
+                  icon: Icons.receipt_outlined,
+                  title: 'Export expenses (CSV)',
+                  subtitle: 'Every expense with category and date',
+                  chevron: true,
+                  onTap: () => attempt(context, () async {
+                    await CsvExport.share('gymdesk-expenses-${ymd(DateTime.now())}.csv', CsvExport.expenses(await app.repo.allExpenses()));
                   }),
                 ),
               ],

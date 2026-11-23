@@ -54,6 +54,11 @@ abstract final class CsvExport {
           ],
       ]);
 
+  static String expenses(List<Expense> expenses) => _rows([
+        ['Date', 'Category', 'Amount', 'Note'],
+        for (final e in expenses) [e.day, e.category, e.amount, e.note],
+      ]);
+
   static Future<void> share(String fileName, String csv, {String? subject}) async {
     final dir = Directory(p.join((await getTemporaryDirectory()).path, 'exports'));
     if (!await dir.exists()) await dir.create(recursive: true);

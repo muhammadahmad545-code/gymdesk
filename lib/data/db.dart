@@ -95,6 +95,23 @@ class Checkins extends Table {
       ];
 }
 
+/// Money the gym spends (rent, salaries, electricity…), so Analytics can show profit.
+@DataClassName('Expense')
+@TableIndex(name: 'expenses_day_idx', columns: {#day})
+class Expenses extends Table {
+  TextColumn get id => text()();
+  TextColumn get category => text()();
+  RealColumn get amount => real()();
+
+  /// `yyyy-MM-dd`.
+  TextColumn get day => text()();
+  TextColumn get note => text().withDefault(const Constant(''))();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 /// Gym settings that travel with backups (name, currency…).
 @DataClassName('KvEntry')
 class Kv extends Table {
@@ -105,21 +122,27 @@ class Kv extends Table {
   Set<Column<Object>> get primaryKey => {key};
 }
 
-@DriftDatabase(tables: [Members, Plans, Payments, Checkins, Kv])
+@DriftDatabase(tables: [Members, Plans, Payments, Checkins, Expenses, Kv])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   static const fileName = 'mr_gym.sqlite';
 
-  /// Version 4 was the multi-location 1.x schema; 5 is the single-gym 2.x schema.
+  /// Version 4 was the multi-location 1.x schema; 5 is the single-gym 2.0 schema; 6 adds expenses.
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) => m.createAll(),
         onUpgrade: (m, from, to) async {
-          if (from < 5) await migrateLegacyDatabase(this, m);
+          // The legacy migration ends with createAll(), which already includes expenses.
+          if (from < 5) {
+            await migrateLegacyDatabase(this, m);
+          } else if (from < 6) {
+            await m.createTable(expenses);
+            await m.createIndex(Index('expenses_day_idx', 'CREATE INDEX IF NOT EXISTS expenses_day_idx ON expenses (day)'));
+          }
         },
       );
 
