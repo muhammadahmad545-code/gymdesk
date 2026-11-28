@@ -8,6 +8,11 @@ Everything lives on the phone: no account, no server and no internet needed, exc
 or to download an app update from GitHub.
 
 
+## What's new in 2.2
+
+- **Appearance, your way:** Settings → Appearance. Theme (system, light, dark), 12 accent colours or any colour from the picker, background tone (neutral, warm, cool, tinted, pure black), font (Inter, Manrope, Space Grotesk, Lora or the system font), text size and bold text, density, corner shape, depth (flat, soft shadows or glass), navigation bar style and animations.
+- **Live preview:** the screen redraws itself with your choices before you press Apply; Reset to default is one tap away. Custom colours are adjusted just enough to stay readable in both themes.
+
 ## What's new in 2.1
 
 - **New name:** Mr. Gym is now **Gymdesk**, a name that fits any gym. Your own gym's name is still set inside the app and shown on every screen.

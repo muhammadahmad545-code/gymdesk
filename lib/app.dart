@@ -23,6 +23,7 @@ class GymdeskApp extends StatefulWidget {
 
 class _GymdeskAppState extends State<GymdeskApp> with WidgetsBindingObserver {
   AppServices? _services;
+  BasaltAppearanceController? _appearance;
   Object? _error;
   final _navigator = GlobalKey<NavigatorState>();
 
@@ -37,6 +38,9 @@ class _GymdeskAppState extends State<GymdeskApp> with WidgetsBindingObserver {
     setState(() => _error = null);
     try {
       final s = await (widget.boot ?? AppServices.open)().timeout(const Duration(seconds: 20));
+      final look = _appearance ?? await BasaltAppearanceController.load();
+      if (_appearance == null) look.addListener(_changed);
+      _appearance = look;
       s.prefs.addListener(_changed);
       s.lock.addListener(_lockChanged);
       if (!mounted) return;
@@ -60,6 +64,7 @@ class _GymdeskAppState extends State<GymdeskApp> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _services?.prefs.removeListener(_changed);
+    _appearance?.removeListener(_changed);
     _services?.lock.removeListener(_lockChanged);
     super.dispose();
   }
@@ -83,6 +88,7 @@ class _GymdeskAppState extends State<GymdeskApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final s = _services;
+    final look = _appearance;
     Widget home;
     if (_error != null) {
       home = _BootError(error: _error!, onRetry: _boot);
@@ -95,10 +101,13 @@ class _GymdeskAppState extends State<GymdeskApp> with WidgetsBindingObserver {
       title: 'Gymdesk',
       navigatorKey: _navigator,
       debugShowCheckedModeBanner: false,
-      theme: basaltTheme(Brightness.light, appAccent),
-      darkTheme: basaltTheme(Brightness.dark, appAccent),
+      theme: basaltTheme(Brightness.light, appAccent, appearance: look?.value ?? BasaltAppearance.defaults, reduceMotion: look?.reduceMotion ?? false),
+      darkTheme: basaltTheme(Brightness.dark, appAccent, appearance: look?.value ?? BasaltAppearance.defaults, reduceMotion: look?.reduceMotion ?? false),
       themeMode: s?.prefs.themeMode ?? ThemeMode.system,
-      builder: (context, child) => s == null ? child! : AppScope(services: s, child: child!),
+      builder: (context, child) {
+        final body = s == null ? child! : AppScope(services: s, child: child!);
+        return look == null ? body : look.wrap(context, body);
+      },
       home: home,
     );
   }

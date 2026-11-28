@@ -159,3 +159,48 @@ launch
 expect "Mark attendance" 20 "app opens without a PIN once the lock is off"
 expect_not "Enter PIN" 1 "no lock screen after turning the lock off"
 alive || fail "app died during the end-to-end tests"
+
+# --- Appearance: draft preview, Apply, persistence after restart, reset -----------------------
+is_selected() { dump; python3 - "$1" <<'PY'
+import re, sys, html
+xml = open('/tmp/ui.xml', encoding='utf-8', errors='ignore').read()
+for m in re.finditer(r'<node [^>]*>', xml):
+    n = m.group(0)
+    vals = [html.unescape(v) for v in re.findall(r' (?:text|content-desc)="([^"]*)"', n)]
+    if any(v == sys.argv[1] or sys.argv[1] in v.split('\n') for v in vals):
+        sys.exit(0 if ('selected="true"' in n or 'checked="true"' in n) else 1)
+sys.exit(1)
+PY
+}
+tap_text "Settings"; sleep 2
+scroll_tap "Appearance"; sleep 3
+expect "Gymdesk, your way" 10 "Appearance screen opens with a live preview"
+shot e2e-8-appearance
+scroll_tap "Teal accent"; sleep 1
+scroll_tap "Manrope font"; sleep 1
+scroll_tap "Warm background"; sleep 1
+scroll_tap "Glass"; sleep 1
+scroll_tap "Floating"; sleep 1
+shot e2e-8-appearance-draft
+expect "Apply" 5 "changes wait for Apply"
+tap_text "Apply"; sleep 2
+expect_not "Discard" 2 "Apply saves the draft"
+back
+shot e2e-8-appearance-applied
+adb shell am force-stop "$PKG"; sleep 2
+launch
+expect "Mark attendance" 20 "app reopens after changing the appearance"
+shot e2e-8-appearance-after-restart
+tap_text "Settings"; sleep 2
+scroll_tap "Appearance"; sleep 3
+for i in 1 2 3; do has_text "Teal accent" && break; swipe_up; done
+if is_selected "Teal accent"; then pass "accent choice survives a restart"; else fail "accent choice survives a restart"; fi
+scroll_to "Manrope font" >/dev/null
+if is_selected "Manrope font"; then pass "font choice survives a restart"; else fail "font choice survives a restart"; fi
+scroll_tap "Reset to default"; sleep 1
+tap_text "Apply"; sleep 2
+scroll_top
+for i in 1 2 3; do has_text "Gymdesk accent" && break; swipe_up; done
+if is_selected "Gymdesk accent"; then pass "Reset to default returns to the app colour"; else fail "Reset to default returns to the app colour"; fi
+back
+alive || fail "app died during the appearance checks"

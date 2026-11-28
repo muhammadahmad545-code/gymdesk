@@ -2,6 +2,7 @@ import 'package:basalt/basalt.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../app.dart';
 import '../app_services.dart';
 import '../data/gym_repository.dart';
 import 'backup_screen.dart';
@@ -180,18 +181,20 @@ class SettingsScreen extends StatelessWidget {
             BGroup(
               title: 'Appearance',
               children: [
-                for (final (mode, label, icon) in [
-                  (ThemeMode.system, 'System', Icons.brightness_auto_outlined),
-                  (ThemeMode.light, 'Light', Icons.light_mode_outlined),
-                  (ThemeMode.dark, 'Dark', Icons.dark_mode_outlined),
-                ])
-                  BListRow(
-                    icon: icon,
-                    title: label,
-                    dense: true,
-                    trailing: prefs.themeMode == mode ? Icon(Icons.check_rounded, color: p.accent) : null,
-                    onTap: () => prefs.setThemeMode(mode),
-                  ),
+                BListRow(
+                  icon: Icons.palette_outlined,
+                  title: 'Appearance',
+                  subtitle: '${switch (prefs.themeMode) { ThemeMode.light => 'Light', ThemeMode.dark => 'Dark', _ => 'System' }} theme · colour, font, text size, layout and motion',
+                  chevron: true,
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                    builder: (_) => BasaltAppearanceScreen(
+                      appName: 'Gymdesk',
+                      appAccent: appAccent,
+                      themeMode: prefs.themeMode,
+                      onThemeMode: prefs.setThemeMode,
+                    ),
+                  )),
+                ),
               ],
             ),
             const SizedBox(height: Gap.sm),
